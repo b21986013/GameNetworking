@@ -16,8 +16,6 @@ public class GameClient extends Thread
         catch (SocketException | UnknownHostException e){
             e.printStackTrace();
         }
-
-        sendData("ping".getBytes());
     }
 
     @Override
