@@ -7,11 +7,11 @@ public class GameClient extends Thread
     private DatagramSocket socket;
     private final int port = 1300;
 
-    public GameClient(String ipAddress)
+    public GameClient(String host_ip)
     {
         try{
             socket = new DatagramSocket();
-            host_ip = InetAddress.getByName(ipAddress);
+            this.host_ip = InetAddress.getByName(host_ip);
         }
         catch (SocketException | UnknownHostException e){
             e.printStackTrace();

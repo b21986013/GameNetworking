@@ -3,12 +3,12 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameServer<T extends ConnectedClient> extends Thread
+public class GameServer extends Thread
 {
     private DatagramSocket socket;
     private final int port = 1300;
 
-    private List<T> connectedClients = new ArrayList<T>();
+    private List<ConnectedClient> connectedClients = new ArrayList<>();
 
     public GameServer()
     {
@@ -51,9 +51,9 @@ public class GameServer<T extends ConnectedClient> extends Thread
 
     public void sendDataToAllClients(byte[] data)
     {
-        for(T p : connectedClients)
+        for(ConnectedClient connectedClient : connectedClients)
         {
-            sendData(data, p.ipAddress, p.port);
+            sendData(data, connectedClient.ip(), connectedClient.port());
         }
     }
 
@@ -69,35 +69,12 @@ public class GameServer<T extends ConnectedClient> extends Thread
                 break;
             case LOGIN:
                 packet = new PacketLogin(data);
+
                 System.out.println("[" + ipAddress.getHostAddress() + ":" + port + "]" + ((PacketLogin) packet).getMSG() + " has connected...");
+
+                connectedClients.add(new ConnectedClient(ipAddress, port));
                 break;
         }
     }
 
-    public void addConnection(T clientInstance, PacketLogin loginPacket)
-    {
-        boolean alreadyConnected = false;
-        for (T connectedClient : connectedClients)
-        {
-            if (clientInstance.username.equalsIgnoreCase(connectedClient.username)) {
-                if (connectedClient.ipAddress == null) {
-                    connectedClient.ipAddress = clientInstance.ipAddress;
-                }
-
-                if (connectedClient.port == -1) {
-                    connectedClient.port = clientInstance.port;
-                }
-
-                alreadyConnected = true;
-            }
-            else{
-                sendData(loginPacket.getData(), connectedClient.ipAddress, connectedClient.port);
-                Packet notifyClientsAboutOtherClientsPacket = new PacketLogin(connectedClient.username);
-                sendData(notifyClientsAboutOtherClientsPacket.getData(), clientInstance.ipAddress, clientInstance.port);
-            };
-        }
-
-        if (!alreadyConnected)
-            connectedClients.add(clientInstance);
-    }
 }
